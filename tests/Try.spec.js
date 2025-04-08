@@ -10,8 +10,11 @@ test( 'Example test file', async({browser})=>
     await page.locator("[type = 'email']").fill('mohan.shil.007@gmail.com');
     await page.locator("[type = 'password']").fill('Iam4913@');
     await page.locator('[type="submit"]').click();
+    // await page.waitForLoadState('networkidle');
+    await page.locator('.card-body h5').first().waitFor();
     // console.log(await page.locator('.card-body h5 ').nth(0).textContent());
-    // console.log(await page.locator('.card-body h5').allTextContents());
+    console.log(await page.locator('.card-body h5').allTextContents()); 
+
     await page.locator('.card-body button').nth(0).click();
     await page.locator('.product-buttons').click();
 

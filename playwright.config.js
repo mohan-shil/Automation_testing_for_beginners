@@ -15,11 +15,13 @@ export default defineConfig({
     timeout: 40 * 1000,
   },
 
-
+  reporter: 'html',
   use: {
     
     browserName: 'firefox',
     headless: false,
+    screenshot: 'only-on-failure',
+    trace: 'retain-on-failure', 
 
 
   },
