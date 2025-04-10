@@ -74,6 +74,7 @@ test('child window handling', async({browser}) =>
 
     await userName.type(domain);;
     console.log(await page.locator('#username').textContent());
-
+    await page.pause();
+    
 });
 

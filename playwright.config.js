@@ -15,7 +15,7 @@ export default defineConfig({
     timeout: 40 * 1000,
   },
 
-  reporter: 'html',
+  // reporter: 'html',
   use: {
     
     browserName: 'firefox',
