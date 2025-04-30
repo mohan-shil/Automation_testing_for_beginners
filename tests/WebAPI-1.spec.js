@@ -1,10 +1,14 @@
 const {test, expect, request} = require ('@playwright/test');
 
-let token;
+
 const loginPayLoad = {userEmail: "mohan.shil.007@gmail.com", userPassword: "Iam4913@"};
+const orderPayLoad = {orders:[{country:"Cuba", productOrderedId:"67a8dde5c0d3e6622a297cc8"}]};
+let token;
+let orderId;
 
 test.beforeAll( async ()=>
 {
+    //Login API
     const apiContext = await request.newContext();
     const loginResponse = await apiContext.post("https://rahulshettyacademy.com/api/ecom/auth/login", 
     {
@@ -14,6 +18,22 @@ test.beforeAll( async ()=>
     const loginResponseJson = await loginResponse.json();
     token = loginResponseJson.token;
     console.log(token);
+
+
+    //
+    const orderResponse = await apiContext.post('https://rahulshettyacademy.com/api/ecom/order/create-order',
+    {
+        data: orderPayLoad, 
+        headers: 
+        {
+            "Authorization": token,
+            "Content-Type": 'application/json'
+        }
+    });
+    const orderResponseJson = await orderResponse.json();
+    console.log(orderResponseJson);
+    orderId = orderResponseJson.orders[0];
+
     
 });
 
@@ -22,10 +42,9 @@ test.beforeEach( ()=>
 
 });
 
-
+//Create oeder is success 
 test('Place the order', async ({page})=>
     {
-
         page.addInitScript( value => 
         {
 
@@ -33,34 +52,25 @@ test('Place the order', async ({page})=>
         }, token);
 
         await page.goto('https://rahulshettyacademy.com/client');
-        // plugin setup
-        const products = page.locator('.card-body');
-        const productName = "ZARA COAT 3";
-        const email = 'mohan.shil.007@gmail.com';
-        await page.locator('.card-body b').first().waitFor(); 
-        // finding the product and clicking on cart button  
-        await page.locator('.card-body').filter({hasText: "ZARA COAT 3"})
-        .getByRole('button', {name:"Add to Cart"}).click();
     
-        await page.getByRole("listitem").getByRole('button', { name: 'Cart' }).click();
-    
-        // wait for the cart page to load
-        await page.locator('div li').first().waitFor();
-        await expect(page.getByText("ZARA COAT 3")).toBeVisible(); //assertion
-        
-        // checkout
-        await page.getByRole('button', { name: 'Checkout' }).click();
-        //fill address
-        await page.locator("input[value='4542 9931 9292 2293']").fill('4542 9931 9292 2293');
-        await page.locator("(//input[@type='text'])[2]").fill('6666');
-        await page.locator("(//input[@type='text'])[3]").fill('Visa');
-        await page.locator("(//input[@type='text'])[4]").fill('rahulshettyacademy');
-        await page.locator("button[type='submit']").click();
-    
-        await page.getByPlaceholder("Select Country").pressSequentially('ind');
-        await page.getByRole('button', { name: 'India' }).nth(1).click();
-        await page.getByText("PLACE ORDER").click();
-        await expect(page.getByText("Thankyou for the order.")).toBeVisible(); //assertion
-    
-    
+        // order history
+
+        await page.locator('button[routerlink="/dashboard/myorders"]').click();
+        await page.locator('tbody').waitFor();
+        const rows = await page.locator('tbody tr');
+
+        for(let i = 0; i < await rows.count(); i++)
+            {
+            const rowOrderId = await rows.nth(i).locator('th').textContent();
+                if( orderId.includes(rowOrderId))
+                {
+                    await rows.nth(i).locator('button').first().click();
+                    break;
+                }
+            }
+        const orderIdDetails = await page.locator('.col-text').textContent();
+        await page.pause();
+        expect(orderId.includes(orderIdDetails)).toBeTruthy();
+
+
         }); 
