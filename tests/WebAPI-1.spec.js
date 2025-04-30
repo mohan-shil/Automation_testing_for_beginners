@@ -1,6 +1,6 @@
 const {test, expect, request} = require ('@playwright/test');
-const { executionAsyncId } = require('async_hooks');
 
+let token;
 const loginPayLoad = {userEmail: "mohan.shil.007@gmail.com", userPassword: "Iam4913@"};
 
 test.beforeAll( async ()=>
@@ -10,8 +10,11 @@ test.beforeAll( async ()=>
     {
         data: loginPayLoad
     });
-    expect(loginResponse.ok())
-
+    expect(loginResponse.ok()).toBeTruthy();
+    const loginResponseJson = await loginResponse.json();
+    token = loginResponseJson.token;
+    console.log(token);
+    
 });
 
 test.beforeEach( ()=>
@@ -20,25 +23,20 @@ test.beforeEach( ()=>
 });
 
 
-
-
-test('Client App test', async ({browser})=>
+test('Place the order', async ({page})=>
     {
+
+        page.addInitScript( value => 
+        {
+
+            window.localStorage.setItem('token', value);
+        }, token);
+
+        await page.goto('https://rahulshettyacademy.com/client');
         // plugin setup
-        const context = await browser.newContext();
-        const page = await context.newPage();
         const products = page.locator('.card-body');
         const productName = "ZARA COAT 3";
         const email = 'mohan.shil.007@gmail.com';
-        //page setup
-        await page.goto('https://rahulshettyacademy.com/client');
-        //console.log(await page.title());
-        // login setup
-        await page.getByPlaceholder('email@example.com').fill(email);
-        await page.getByPlaceholder('enter your passsword').fill('Iam4913@');
-        await page.getByRole('button', { name: 'Login' }).click();
-        // wait for the page to load
-        await page.waitForLoadState('networkidle');
         await page.locator('.card-body b').first().waitFor(); 
         // finding the product and clicking on cart button  
         await page.locator('.card-body').filter({hasText: "ZARA COAT 3"})
