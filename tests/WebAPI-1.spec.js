@@ -15,7 +15,6 @@ test.beforeAll( async ()=>
     response = await apiUtils.createOrder(orderPayLoad);
     
 });
-
 //Create order is success 
 test('Place the order', async ({page})=>
     {
