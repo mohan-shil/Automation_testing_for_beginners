@@ -21,7 +21,7 @@ export default defineConfig({
     browserName: 'firefox',
     headless: false,
     screenshot: 'only-on-failure',
-    trace: 'retain-on-failure', 
+    trace: 'on', 
 
 
   },
